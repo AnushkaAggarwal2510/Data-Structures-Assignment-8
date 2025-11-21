@@ -1,0 +1,81 @@
+Question 4) Write a program to determine whether a given binary tree is a BST or not.
+
+Answer 4)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+struct Node* queue[100];
+int front = -1, rear = -1;
+
+void enqueue(struct Node* n) {
+    queue[++rear] = n;
+    if (front == -1) front = 0;
+}
+
+struct Node* dequeue() {
+    if (front == -1) return NULL;
+    struct Node* temp = queue[front++];
+    if (front > rear) front = rear = -1;
+    return temp;
+}
+struct Node* createNode(int data) {
+    if (data == -1) return NULL;   // -1 means no node
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+struct Node* buildTree() {
+    int val;
+    printf("Enter root value (-1 for no node): ");
+    scanf("%d", &val);
+
+    struct Node* root = createNode(val);
+    if (root == NULL) return NULL;
+
+    enqueue(root);
+
+    while (front != -1) {
+        struct Node* current = dequeue();
+
+        printf("Enter left child of %d (-1 for no node): ", current->data);
+        scanf("%d", &val);
+        current->left = createNode(val);
+        if (current->left != NULL) enqueue(current->left);
+
+        printf("Enter right child of %d (-1 for no node): ", current->data);
+        scanf("%d", &val);
+        current->right = createNode(val);
+        if (current->right != NULL) enqueue(current->right);
+    }
+
+    return root;
+}
+int isBST(struct Node* root, int min, int max) {
+    if (root == NULL) return 1;
+
+    if (root->data <= min || root->data >= max)
+        return 0;
+
+    return isBST(root->left, min, root->data) &&
+           isBST(root->right, root->data, max);
+}
+
+int main() {
+    printf("Build the binary tree:\n");
+    struct Node* root = buildTree();
+
+    if (isBST(root, INT_MIN, INT_MAX))
+        printf("\nThe binary tree IS a BST.\n");
+    else
+        printf("\nThe binary tree is NOT a BST.\n");
+
+    return 0;
+}
